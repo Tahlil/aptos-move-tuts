@@ -42,19 +42,28 @@ module MyAddr::Colln{
         let Collection{items:_} = collection;
     }
 
-        #[test(account = @0x42)]
-        public entry fun script_fn_2(account: signer) acquires Collection{
+        #[test(account = @0x11)]
+        public entry fun my_test(account: signer){
             MyAddr::Colln::start_collection(&account);
-            let addr = signer::address_of(&account);
-            let is = MyAddr::Colln::exists_at(addr);
-            debug::print(&is);
-            MyAddr::Colln::add_item(&account);
-            let lsize = MyAddr::Colln::size(&account);
-            debug::print(&lsize);
-            MyAddr::Colln::destroy(&account);
-            MyAddr::Colln::destroy(&account);
-            let is = MyAddr::Colln::exists_at(addr);
-            debug::print(&is);
-            //MyAddr::Colln::start_collection(&account);
+            let addrss = signer::address_of(&account);
+            let addressExist = MyAddr::Colln::exists_at(addrss);
+            MyAddr::Colln::start_collection(&account);
+            debug::print(&addressExist);
         }
+
+        // #[test(account = @0x01)]
+        // public entry fun script_fn_2(account: signer) acquires Collection{
+        //     MyAddr::Colln::start_collection(&account);
+        //     let addr = signer::address_of(&account);
+        //     let is = MyAddr::Colln::exists_at(addr);
+        //     debug::print(&is);
+        //     MyAddr::Colln::add_item(&account);
+        //     let lsize = MyAddr::Colln::size(&account);
+        //     debug::print(&lsize);
+        //     MyAddr::Colln::destroy(&account);
+        //     MyAddr::Colln::destroy(&account);
+        //     let is = MyAddr::Colln::exists_at(addr);
+        //     debug::print(&is);
+        //     //MyAddr::Colln::start_collection(&account);
+        // }
     }

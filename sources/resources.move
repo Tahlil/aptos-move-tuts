@@ -42,13 +42,18 @@ module MyAddr::Colln{
         let Collection{items:_} = collection;
     }
 
-        #[test(account = @0x11)]
-        public entry fun my_test(account: signer){
+      
+
+         #[test(account = @0x11)]
+        public entry fun my_test(account: signer) acquires Collection{
             MyAddr::Colln::start_collection(&account);
             let addrss = signer::address_of(&account);
             let addressExist = MyAddr::Colln::exists_at(addrss);
-            MyAddr::Colln::start_collection(&account);
             debug::print(&addressExist);
+            MyAddr::Colln::add_item(&account);
+            let colSize = MyAddr::Colln::size(&account);
+            debug::print(&colSize);
+            // debug::print(&colSize);
         }
 
         // #[test(account = @0x01)]

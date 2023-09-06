@@ -35,6 +35,16 @@ let star = borrow_global<GameStar>(owner);
       let star = borrow_global_mut<GameStar>(owner);
       star.value = price;
     }
+
+    public fun transfer(owner: &signer, to: &signer) acquires GameStar {
+      let addrto = signer::address_of(to);
+     assert!(exists<GameStar>(addrto), STAR_NOT_EXISTS);
+     let addro = signer::address_of(owner);
+     let star = move_from<GameStar>(addro);
+      star.value = star.value + 20;
+     assert!(!exists<GameStar>(addrto), STAR_ALREADY_EXISTS);
+     move_to<GameStar>(to, star);
+      }
    
    
    // #[test(account = @0x42)]

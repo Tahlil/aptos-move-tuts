@@ -29,21 +29,44 @@ let star = borrow_global<GameStar>(owner);
   assert!(!exists<GameStar>(addr), STAR_ALREADY_EXISTS);
   move_to<GameStar>(to, star);
    }
-   
-   #[test(account = @0x42)]
-   public entry fun my_test(account:&signer) acquires GameStar{
-       let star = MyAddr::game::newStar(b"Sneha", b"Bharat", 6);
-       let starName = star.name;
-      debug::print(&starName);
-      debug::print<GameStar>(&star);
 
-      MyAddr::game::mint(account, star);
-      let addrss = signer::address_of(account);
-      let name:vector<u8>;
-      let value: u64;
-      (name, value) = MyAddr::game::get(addrss);
-      debug::print<vector<u8>>(&name);
-      debug::print<u64>(&value);
+   public fun setPrice(owner: address, price: u64) acquires GameStar{
+      assert!(exists<GameStar>(owner), STAR_NOT_EXISTS);
+      let star = borrow_global_mut<GameStar>(owner);
+      star.value = price;
+    }
+   
+   
+   // #[test(account = @0x42)]
+   // public entry fun my_test(account:&signer) acquires GameStar{
+   //     let star = MyAddr::game::newStar(b"Tahlil", b"BD", 7);
+   //     let starName = star.name;
+   //    debug::print(&starName);
+   //    debug::print<GameStar>(&star);
+
+   //    MyAddr::game::mint(account, star);
+   //    let addrss = signer::address_of(account);
+   //    let name:vector<u8>;
+   //    let value: u64;
+   //    (name, value) = MyAddr::game::get(addrss);
+   //    debug::print<vector<u8>>(&name);
+   //    debug::print<u64>(&value);
+   // }
+
+   #[test(account = @0x42)]
+   public entry fun set_price_test(account:&signer) acquires GameStar{
+       let star = MyAddr::game::newStar(b"Tahlil", b"BD", 7);
+      
+       MyAddr::game::mint(account, star);
+       let addrss = signer::address_of(account);
+   
+       let value: u64;
+       (_, value) = MyAddr::game::get(addrss);
+       debug::print(&value);
+       MyAddr::game::setPrice(addrss, 11);
+
+       (_, value) = MyAddr::game::get(addrss);
+       debug::print(&value);
    }
   
 }

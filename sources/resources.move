@@ -42,17 +42,33 @@ module MyAddr::Colln{
         let Collection{items:_} = collection;
     }
 
-      
+    
 
          #[test(account = @0x11)]
         public entry fun my_test(account: signer) acquires Collection{
             MyAddr::Colln::start_collection(&account);
             let addrss = signer::address_of(&account);
             let addressExist = MyAddr::Colln::exists_at(addrss);
-            debug::print(&addressExist);
             MyAddr::Colln::add_item(&account);
             let colSize = MyAddr::Colln::size(&account);
+            debug::print(&addressExist);
             debug::print(&colSize);
+            // debug::print(&colSize);
+        }
+
+         #[test(account = @0x42)]
+        public entry fun delete_test(account: signer) acquires Collection{
+            MyAddr::Colln::start_collection(&account);
+            let addrss = signer::address_of(&account);
+            let addressExist = MyAddr::Colln::exists_at(addrss);
+            MyAddr::Colln::add_item(&account);
+            let colSize = MyAddr::Colln::size(&account);
+            debug::print(&addressExist);
+            debug::print(&colSize);
+            MyAddr::Colln::destroy(&account);
+            // MyAddr::Colln::destroy(&account);
+            addressExist = MyAddr::Colln::exists_at(addrss);
+            debug::print(&addressExist);
             // debug::print(&colSize);
         }
 

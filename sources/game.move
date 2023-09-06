@@ -37,14 +37,15 @@ let star = borrow_global<GameStar>(owner);
     }
 
     public fun transfer(owner: &signer, to: &signer) acquires GameStar {
-      let addrto = signer::address_of(to);
-     assert!(exists<GameStar>(addrto), STAR_NOT_EXISTS);
-     let addro = signer::address_of(owner);
-     let star = move_from<GameStar>(addro);
+      let addrfrom = signer::address_of(owner);
+     assert!(exists<GameStar>(addrfrom), STAR_NOT_EXISTS);
+     let addro = signer::address_of(to);
+     assert!(!exists<GameStar>(addro), STAR_ALREADY_EXISTS);
+     let star = move_from<GameStar>(addrfrom);
       star.value = star.value + 20;
-     assert!(!exists<GameStar>(addrto), STAR_ALREADY_EXISTS);
+     
      move_to<GameStar>(to, star);
-      }
+   }
    
    
    // #[test(account = @0x42)]
@@ -63,19 +64,41 @@ let star = borrow_global<GameStar>(owner);
    //    debug::print<u64>(&value);
    // }
 
-   #[test(account = @0x42)]
-   public entry fun set_price_test(account:&signer) acquires GameStar{
-       let star = MyAddr::game::newStar(b"Tahlil", b"BD", 7);
+   // #[test(account = @0x42)]
+   // public entry fun set_price_test(account:&signer) acquires GameStar{
+   //     let star = MyAddr::game::newStar(b"Tahlil", b"BD", 7);
       
-       MyAddr::game::mint(account, star);
-       let addrss = signer::address_of(account);
+   //     MyAddr::game::mint(account, star);
+   //     let addrss = signer::address_of(account);
+   
+   //     let value: u64;
+   //     (_, value) = MyAddr::game::get(addrss);
+   //     debug::print(&value);
+   //     MyAddr::game::setPrice(addrss, 11);
+
+   //     (_, value) = MyAddr::game::get(addrss);
+   //     debug::print(&value);
+   // }
+
+   #[test(fromAccount=@0x42, toAccount=@0x43)]
+   public entry fun transfer_test(fromAccount:&signer, toAccount:&signer) acquires GameStar{
+       let star = MyAddr::game::newStar(b"Tahlil", b"XYZ", 7);
+      
+       MyAddr::game::mint(fromAccount, star);
+       let addrss1 = signer::address_of(fromAccount);
+       let addrss2 = signer::address_of(toAccount);
    
        let value: u64;
-       (_, value) = MyAddr::game::get(addrss);
+       let name:vector<u8>;
+       (name, value) = MyAddr::game::get(addrss1);
+       debug::print(&addrss1);
+       debug::print(&name);
        debug::print(&value);
-       MyAddr::game::setPrice(addrss, 11);
+       MyAddr::game::transfer(fromAccount, toAccount);
 
-       (_, value) = MyAddr::game::get(addrss);
+       (name, value) = MyAddr::game::get(addrss2);
+       debug::print(&addrss2);
+       debug::print(&name);
        debug::print(&value);
    }
   

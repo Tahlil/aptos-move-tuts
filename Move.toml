@@ -4,7 +4,7 @@ version = "1.0.0"
 authors = []
 
 [addresses]
-MyAddr ='42f828c3c64cddf473db97f807e39a7faa3684260a952a97807ac44bcf250c37'
+MyAddr ='7211e59d99739f8469e80b0a1edfb2931e7a0b55593eaade555e4ce1f3a5ebfa'
 Std = "0x1"
 aptos_std = "0x1"
 

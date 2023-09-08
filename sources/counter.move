@@ -1,4 +1,4 @@
-module MyCounterAddr::MyCounter {
+module MyAddr::MyCounter {
     use std::signer;
     use std::debug;
 

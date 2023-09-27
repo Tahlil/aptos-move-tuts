@@ -1,5 +1,6 @@
 // Copyright © Aptos Foundation
 // SPDX-License-Identifier: Apache-2.0
+require("dotenv").config();
 
 const assert = require('assert'); 
 const fs = require('fs');
@@ -31,10 +32,10 @@ const {
  * Return to the first terminal and press enter.
  */
 
-const readline = require("readline").createInterface({
-  input: process.stdin,
-  output: process.stdout,
-});
+// const readline = require("readline").createInterface({
+//   input: process.stdin,
+//   output: process.stdout,
+// });
 
 class AdminClient extends Provider {
   constructor(network) {
@@ -129,45 +130,50 @@ class AdminClient extends Provider {
 
 /** run our demo! */
 async function main() {
-  assert(process.argv.length == 3, "Expecting an argument that points to the fa_coin directory.");
-
+//   assert(process.argv.length == 3, "Expecting an argument that points to the fa_coin directory.");
   const client = new AdminClient({ fullnodeUrl: NODE_URL, indexerUrl: NODE_URL /* not used */ });
   const fungibleAssetClient = new FungibleAssetClient(client);
   const faucetClient = new FaucetClient(NODE_URL, FAUCET_URL);
+  const privateKey1 = (new HexString(process.env.PRIVATE_KEY)).toUint8Array();
+  const privateKey2 = (new HexString(process.env.PRIVATE_KEY2)).toUint8Array();
+  const privateKey3 = (new HexString(process.env.PRIVATE_KEY3)).toUint8Array();
 
   // Create two accounts, Alice and Bob, and fund Alice but not Bob
-  const alice = new AptosAccount();
-  const bob = new AptosAccount();
-  const charlie = new AptosAccount();
+  const alice = new AptosAccount(privateKey1);
+  const bob = new AptosAccount(privateKey2);
+  const charlie = new AptosAccount(privateKey3);
 
-  console.log("\n=== Addresses ===");
-  console.log(`Alice: ${alice.address()}`);
-  console.log(`Bob: ${bob.address()}`);
-  console.log(`Charlie: ${charlie.address()}`);
+//   console.log("\n=== Addresses ===");
+//   console.log(`Alice: ${alice.address()}`);
+//   console.log(`Bob: ${bob.address()}`);
+//   console.log(`Charlie: ${charlie.address()}`);
 
   await faucetClient.fundAccount(alice.address(), 100_000_000);
   await faucetClient.fundAccount(bob.address(), 100_000_000);
 
-  await new Promise((resolve) => {
-    readline.question("Update the module with Alice's address, compile, and press enter.", () => {
-      resolve();
-      readline.close();
-    });
-  });
+//   await new Promise((resolve) => {
+//     readline.question("Update the module with Alice's address, compile, and press enter.", () => {
+//       resolve();
+//       readline.close();
+//     });
+//   });
 
-  // :!:>publish
-  const modulePath = process.argv[2];
-  const packageMetadata = fs.readFileSync(path.join(modulePath, "build", "Examples", "package-metadata.bcs"));
-  const moduleData = fs.readFileSync(path.join(modulePath, "build", "Examples", "bytecode_modules", "fa_coin.mv"));
+//   // :!:>publish
+//   const modulePath = process.argv[2];
+  const packageMetadata = fs.readFileSync(path.join("build", "Examples", "package-metadata.bcs"));
+  const moduleData = fs.readFileSync(path.join("build", "Examples", "bytecode_modules", "fa_coin.mv"));
 
   console.log("Publishing FACoin package.\n");
   let txnHash = await client.publishPackage(alice, new HexString(packageMetadata.toString("hex")).toUint8Array(), [
     new TxnBuilderTypes.Module(new HexString(moduleData.toString("hex")).toUint8Array()),
   ]);
-  await client.waitForTransaction(txnHash, { checkSuccess: true }); // <:!:publish
-
-  const metadata_addr = await client.getMetadata(alice);
-
+  console.log({txnHash});
+  await client.waitForTransaction(txnHash, { checkSuccess: true }); 
+  // <:!:publish
+  console.log("Bob's address", bob.address());
+  console.log("Alice's address", alice.address());
+  console.log("Charlie's address", charlie.address());
+const metadata_addr = await client.getMetadata(alice);
   console.log("All the balances in this exmaple refer to balance in primary fungible stores of each account.");
   console.log(
     `Alice's initial FACoin balance: ${await fungibleAssetClient.getPrimaryBalance(alice.address(), metadata_addr)}.`,
@@ -180,6 +186,7 @@ async function main() {
   );
   console.log("Alice mints Charlie 100 coins.");
   txnHash = await client.mintCoin(alice, charlie.address(), 100);
+  console.log({txnHash});
   await client.waitForTransaction(txnHash, { checkSuccess: true });
   console.log(
     `Charlie's updated FACoin primary fungible store balance: ${await fungibleAssetClient.getPrimaryBalance(
@@ -187,45 +194,69 @@ async function main() {
       metadata_addr,
     )}.`,
   );
+// Uncomment
+//   const metadata_addr = await client.getMetadata(alice);
 
-  console.log("Alice freezes Bob's account.");
-  txnHash = await client.freeze(alice, bob.address());
-  await client.waitForTransaction(txnHash, { checkSuccess: true });
+//   console.log("All the balances in this exmaple refer to balance in primary fungible stores of each account.");
+//   console.log(
+//     `Alice's initial FACoin balance: ${await fungibleAssetClient.getPrimaryBalance(alice.address(), metadata_addr)}.`,
+//   );
+//   console.log(
+//     `Bob's initial FACoin balance: ${await fungibleAssetClient.getPrimaryBalance(bob.address(), metadata_addr)}.`,
+//   );
+//   console.log(
+//     `Charlie's initial balance: ${await fungibleAssetClient.getPrimaryBalance(charlie.address(), metadata_addr)}.`,
+//   );
+//   console.log("Alice mints Charlie 100 coins.");
+//   txnHash = await client.mintCoin(alice, charlie.address(), 100);
+//   await client.waitForTransaction(txnHash, { checkSuccess: true });
+//   console.log(
+//     `Charlie's updated FACoin primary fungible store balance: ${await fungibleAssetClient.getPrimaryBalance(
+//       charlie.address(),
+//       metadata_addr,
+//     )}.`,
+//   );
 
-  console.log(
-    "Alice as the admin forcefully transfers the newly minted coins of Charlie to Bob ignoring that Bob's account is frozen.",
-  );
-  txnHash = await client.transferCoin(alice, charlie.address(), bob.address(), 100);
-  await client.waitForTransaction(txnHash, { checkSuccess: true });
-  console.log(
-    `Bob's updated FACoin balance: ${await fungibleAssetClient.getPrimaryBalance(bob.address(), metadata_addr)}.`,
-  );
+//   console.log("Alice freezes Bob's account.");
+//   txnHash = await client.freeze(alice, bob.address());
+//   await client.waitForTransaction(txnHash, { checkSuccess: true });
 
-  console.log("Alice unfreezes Bob's account.");
-  txnHash = await client.unfreeze(alice, bob.address());
-  await client.waitForTransaction(txnHash, { checkSuccess: true });
-  console.log("Bob's address", bob.address());
-  console.log("Alice's address", alice.address());
-  console.log("Alice burns 50 coins from Bob.");
-  txnHash = await client.burnCoin(alice, bob.address(), 50);
-  await client.waitForTransaction(txnHash, { checkSuccess: true });
-  console.log(
-    `Bob's updated FACoin balance: ${await fungibleAssetClient.getPrimaryBalance(bob.address(), metadata_addr)}.`,
-  );
+//   console.log(
+//     "Alice as the admin forcefully transfers the newly minted coins of Charlie to Bob ignoring that Bob's account is frozen.",
+//   );
+//   txnHash = await client.transferCoin(alice, charlie.address(), bob.address(), 100);
+//   await client.waitForTransaction(txnHash, { checkSuccess: true });
+//   console.log(
+//     `Bob's updated FACoin balance: ${await fungibleAssetClient.getPrimaryBalance(bob.address(), metadata_addr)}.`,
+//   );
 
-  /// Normal fungible asset transfer between primary stores
-  console.log("Bob transfers 10 coins to Alice as the owner.");
-  txnHash = await fungibleAssetClient.transfer(bob, metadata_addr, alice.address(), 10);
-  await client.waitForTransaction(txnHash, { checkSuccess: true });
-  console.log(
-    `Alice's updated FACoin balance: ${await fungibleAssetClient.getPrimaryBalance(alice.address(), metadata_addr)}.`,
-  );
-  console.log(
-    `Bob's updated FACoin balance: ${await fungibleAssetClient.getPrimaryBalance(bob.address(), metadata_addr)}.`,
-  );
-  console.log("done.");
+//   console.log("Alice unfreezes Bob's account.");
+//   txnHash = await client.unfreeze(alice, bob.address());
+//   await client.waitForTransaction(txnHash, { checkSuccess: true });
+//   console.log("Bob's address", bob.address());
+//   console.log("Alice's address", alice.address());
+//   console.log("Charlie's address", charlie.address());
+//   console.log("Alice burns 50 coins from Bob.");
+//   txnHash = await client.burnCoin(alice, bob.address(), 50);
+//   await client.waitForTransaction(txnHash, { checkSuccess: true });
+//   console.log(
+//     `Bob's updated FACoin balance: ${await fungibleAssetClient.getPrimaryBalance(bob.address(), metadata_addr)}.`,
+//   );
+
+//   /// Normal fungible asset transfer between primary stores
+//   console.log("Bob transfers 10 coins to Alice as the owner.");
+//   txnHash = await fungibleAssetClient.transfer(bob, metadata_addr, alice.address(), 10);
+//   await client.waitForTransaction(txnHash, { checkSuccess: true });
+//   console.log(
+//     `Alice's updated FACoin balance: ${await fungibleAssetClient.getPrimaryBalance(alice.address(), metadata_addr)}.`,
+//   );
+//   console.log(
+//     `Bob's updated FACoin balance: ${await fungibleAssetClient.getPrimaryBalance(bob.address(), metadata_addr)}.`,
+//   );
+//   console.log("done.");
 }
 
-if (require.main === module) {
-  main().then((resp) => console.log(resp));
-}
+main()
+// if (require.main === module) {
+//   main().then((resp) => console.log(resp));
+// }

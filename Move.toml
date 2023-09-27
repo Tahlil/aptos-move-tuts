@@ -1,10 +1,10 @@
 [package]
-name = "lec3"
+name = "task"
 version = "1.0.0"
 authors = []
 
 [addresses]
-MyAddr ='7211e59d99739f8469e80b0a1edfb2931e7a0b55593eaade555e4ce1f3a5ebfa'
+MyAddr ='0xaeb489f1b55ebb7b00926879ea2dceaf7bac94556649b83e1dd1a2bf41c017c8'
 Std = "0x1"
 aptos_std = "0x1"
 
